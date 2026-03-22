@@ -14,6 +14,9 @@ import Profile from "../pages/Profile/Profile";
 import ScrollToTop from "../components/ScrollToTop";
 import About from "../pages/About/About";
 
+
+
+
 const MainRoutes = ({ homeTopContent = null }) => {
     const location = useLocation();
 
