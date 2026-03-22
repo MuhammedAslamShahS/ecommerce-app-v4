@@ -1,0 +1,151 @@
+.profile-content {
+  width: 100%;
+  min-height: calc(100vh - 110px);
+  background-color: #f5f5f5;
+  padding: 4px 28px 28px;
+}
+
+.profile-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #6d6d6d;
+  font-size: 16px;
+  margin-bottom: 42px;
+}
+
+.breadcrumb-arrow {
+  font-size: 18px;
+}
+
+.profile-main-title {
+  font-size: 32px;
+  color: #e35e1f;
+  margin-bottom: 46px;
+  font-weight: 500;
+}
+
+.content-section {
+  margin-bottom: 48px;
+}
+
+.content-section-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.content-section-header h2 {
+  font-size: 21px;
+  color: #111;
+  font-weight: 700;
+}
+
+.edit-btn {
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8b8b8b;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.info-card {
+  width: 100%;
+  min-height: 210px;
+  background-color: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 34px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 26px 40px;
+}
+
+.info-grid.two-column {
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+}
+
+.info-item .label {
+  font-size: 18px;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.info-item h4 {
+  font-size: 17px;
+  color: #111;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.verify-link {
+  color: #e14822;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .profile-content {
+    padding: 8px 12px 20px;
+  }
+
+  .profile-main-title {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+
+  .info-grid,
+  .info-grid.two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-breadcrumb {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .profile-main-title {
+    font-size: 22px;
+  }
+
+  .content-section-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .content-section-header h2 {
+    font-size: 17px;
+  }
+
+  .edit-btn {
+    font-size: 14px;
+  }
+
+  .info-card {
+    padding: 20px 16px;
+    min-height: auto;
+  }
+
+  .info-item .label {
+    font-size: 15px;
+  }
+
+  .info-item h4 {
+    font-size: 15px;
+  }
+
+  .verify-link {
+    display: inline-block;
+    margin-left: 0;
+    margin-top: 6px;
+  }
+}

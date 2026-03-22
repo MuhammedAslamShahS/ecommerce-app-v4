@@ -1,0 +1,72 @@
+.TopCategories-main-container {
+  margin-top: 18px;
+  text-align: center;
+  min-height: 580px;
+  padding-top: 70px;
+  border: 1px solid rgba(203, 202, 202, 0.397);
+  font-family: sans-serif;
+}
+
+.TopCategories-main-container h1 {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.TopCategories-main-container p {
+  font-size: 16px;
+  color: gray;
+  margin-top: 8px;
+}
+
+.TopCategories-slider {
+  margin-top: 35px;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0 20px 20px 20px;
+  scrollbar-width: none;
+}
+
+.TopCategories-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.TopCategories-list-card {
+  flex: 0 0 auto;
+  width: 195px;
+  height: 330px;
+  scroll-snap-align: start;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  position: relative;
+  cursor: pointer;
+
+}
+
+.TopCategories-list-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.category-overlay {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 18px 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  color: white;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.category-overlay h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}

@@ -1,0 +1,16 @@
+.logout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.logout-container .logout-content {
+  text-align: center;
+}
+
+.logout-container .logout-content h1 {
+  font-size: 32px;
+  margin-bottom: 16px;
+  
+}

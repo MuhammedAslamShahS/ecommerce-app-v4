@@ -1,0 +1,20 @@
+.Products-page {
+  min-height: 100vh;
+}
+
+.Products-page {
+  padding: 40px 20px;
+}
+
+.products-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.product-card {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
