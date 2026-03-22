@@ -1,12 +1,12 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import "./ProfileContent.css";
-import { RiPencilLine } from "react-icons/ri";
 
 const ProfileContent = () => {
   return (
-    <section className="profile-content">
-     
-    </section>
+    <div className="profile-content">
+      <Outlet />
+    </div>
   );
 };
 
