@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import logo from "../../assets/logo.png";
 import { IoIosSearch } from "react-icons/io";
@@ -9,11 +10,15 @@ import { BiMessageError } from "react-icons/bi";
 import { RiAccountCircleFill } from "react-icons/ri";
 import { AiOutlineShopping } from "react-icons/ai";
 import HeaderTopBar from "./HeaderTopBar";
-import { useNavigate } from "react-router-dom";
 
 const Header = () => {
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
+
+    const goToPath = (path) => {
+        navigate(path);
+        setMenuOpen(false);
+    };
 
     return (
         <>
@@ -28,7 +33,7 @@ const Header = () => {
                     <ul className="desktop-nav-links">
                         <li>NEW IN</li>
                         <li>SALES</li>
-                        <li>PRODUCTS</li>
+                        <li onClick={() => navigate("/products/all")}>PRODUCTS</li>
                         <li>COLLECTIONS</li>
                         <li>WEDDING</li>
                         <li>DEALS</li>
@@ -54,7 +59,9 @@ const Header = () => {
 
                 <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
                     <div className="mobile-top-actions">
-                        <div className="mobile-action-item">ABOUT US</div>
+                        <div className="mobile-action-item" onClick={() => goToPath("/about")}>
+                            ABOUT US
+                        </div>
 
                         <div className="mobile-action-item">
                             <LuMapPin className="mobile-action-icon" />
@@ -66,17 +73,17 @@ const Header = () => {
                             <span>CONTACT US</span>
                         </div>
 
-                        <div className="mobile-action-item">
+                        <div className="mobile-action-item" onClick={() => goToPath("/profile")}>
                             <RiAccountCircleFill className="mobile-action-icon" />
                             <span>MY ACCOUNT</span>
                         </div>
 
-                        <div className="mobile-action-item">
+                        <div className="mobile-action-item" onClick={() => goToPath("/profile?section=wishlist")}>
                             <CiHeart className="mobile-action-icon" />
                             <span>WISHLIST</span>
                         </div>
 
-                        <div className="mobile-action-item">
+                        <div className="mobile-action-item" onClick={() => goToPath("/cart")}>
                             <AiOutlineShopping className="mobile-action-icon" />
                             <span>CART</span>
                         </div>
@@ -85,7 +92,7 @@ const Header = () => {
                     <ul className="mobile-nav-links">
                         <li>NEW IN</li>
                         <li>SALES</li>
-                        <li>PRODUCTS</li>
+                        <li onClick={() => goToPath("/products/all")}>PRODUCTS</li>
                         <li>COLLECTIONS</li>
                         <li>WEDDING</li>
                         <li>DEALS</li>

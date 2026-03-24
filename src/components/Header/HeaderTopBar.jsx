@@ -50,11 +50,11 @@ const HeaderTopBar = () => {
                     </div>
 
                     <div className="love-cart-container">
-                        <div className="love-container">
+                        <div className="love-container" onClick={() => navigate("/profile?section=wishlist")}>
                             <CiHeart className="love-icon icon" />
                         </div>
 
-                        <div className="cart-container">
+                        <div className="cart-container" onClick={() => navigate("/cart")}>
                             <AiOutlineShopping className="cart-icon icon" />
                         </div>
                     </div>

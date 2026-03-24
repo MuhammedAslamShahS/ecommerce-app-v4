@@ -55,6 +55,17 @@ const normalizeProduct = (product) => {
     };
 };
 
+const normalizeWishlistItem = (wishlistItem) => {
+    if (!wishlistItem) {
+        return null;
+    }
+
+    return {
+        ...wishlistItem,
+        product: normalizeProduct(wishlistItem.product),
+    };
+};
+
 const registerUser = async ({ name, email, password }) => {
     const response = await apiClient.post("/auth/register", {
         name,
@@ -97,13 +108,38 @@ const getProductId = async (id) => {
     return normalizeProduct(response.data?.data?.product);
 };
 
+const getWishlistItems = async () => {
+    const response = await apiClient.get("/wishlist", buildAuthConfig());
+    const wishlistItems = response.data?.data?.wishlistItems || [];
+
+    return wishlistItems.map(normalizeWishlistItem);
+};
+
+const addProductToWishlist = async (productId) => {
+    const response = await apiClient.post(
+        "/wishlist",
+        { productId },
+        buildAuthConfig(),
+    );
+
+    return normalizeWishlistItem(response.data?.data?.wishlistItem);
+};
+
+const removeProductFromWishlist = async (productId) => {
+    const response = await apiClient.delete(`/wishlist/${productId}`, buildAuthConfig());
+    return response.data;
+};
+
 export {
+    addProductToWishlist,
     apiClient,
     buildAuthConfig,
     getAllProducts,
     getApiErrorMessage,
     getProductId,
+    getWishlistItems,
     loginUser,
     logoutUser,
+    removeProductFromWishlist,
     registerUser,
 };
