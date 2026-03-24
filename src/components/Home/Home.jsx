@@ -10,7 +10,9 @@ import Chip from "@mui/material/Chip";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { getAllProducts } from "../../ApiService/api";
+import useWishlist from "../../hooks/useWishlist";
 import TopCategories from "../TopCategories/TopCategories";
 
 const loadingPlaceholders = Array.from({ length: 8 });
@@ -20,6 +22,7 @@ const Home = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [searchParams] = useSearchParams();
+    const { isInWishlist, isWishlistLoading, toggleWishlist } = useWishlist();
 
     const searchQuery = searchParams.get("search")?.trim() ?? "";
     const normalizedSearchQuery = searchQuery.toLowerCase();
@@ -221,6 +224,33 @@ const Home = () => {
                                                 zIndex: 1,
                                             }}
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleWishlist(product)}
+                                            disabled={isWishlistLoading}
+                                            aria-label={
+                                                isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"
+                                            }
+                                            style={{
+                                                position: "absolute",
+                                                top: 10,
+                                                left: 10,
+                                                width: 36,
+                                                height: 36,
+                                                border: "none",
+                                                borderRadius: "50%",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                backgroundColor: "#ffffff",
+                                                color: isInWishlist(product.id) ? "#ff5722" : "#7b6a62",
+                                                boxShadow: "0 8px 18px rgba(0, 0, 0, 0.12)",
+                                                cursor: "pointer",
+                                                zIndex: 1,
+                                            }}
+                                        >
+                                            {isInWishlist(product.id) ? <AiFillHeart size={18} /> : <AiOutlineHeart size={18} />}
+                                        </button>
                                         <CardMedia
                                             component="img"
                                             image={product.image}

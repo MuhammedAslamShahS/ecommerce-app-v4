@@ -1,7 +1,9 @@
 import "./Products.css";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { getAllProducts } from "../../ApiService/api";
+import useWishlist from "../../hooks/useWishlist";
 
 const createCategorySlug = (value) => {
     return String(value || "")
@@ -22,6 +24,7 @@ const formatCategoryLabel = (value) => {
 
 const Products = () => {
     const { category } = useParams();
+    const { isInWishlist, isWishlistLoading, toggleWishlist } = useWishlist();
 
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -66,16 +69,26 @@ const Products = () => {
             {!isLoading && !hasError && filteredProducts.length > 0 ? (
                 <div className="products-grid">
                     {filteredProducts.map((product) => (
-                        <Link
-                            key={product.id}
-                            to={`/product/${product.id}`}
-                            className="product-card"
-                            style={{ textDecoration: "none", color: "inherit", display: "block" }}
-                        >
-                            <h3>{product.title}</h3>
-                            <p>{product.category || "Uncategorized"}</p>
-                            <p>Rs. {Number(product.price || 0).toFixed(2)}</p>
-                        </Link>
+                        <div key={product.id} className="product-card">
+                            <div className="product-card-top">
+                                <p className="product-card-category">{product.category || "Uncategorized"}</p>
+                                <button
+                                    type="button"
+                                    className={`wishlist-toggle-btn ${isInWishlist(product.id) ? "active" : ""}`}
+                                    onClick={() => toggleWishlist(product)}
+                                    disabled={isWishlistLoading}
+                                    aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                                >
+                                    {isInWishlist(product.id) ? <AiFillHeart /> : <AiOutlineHeart />}
+                                </button>
+                            </div>
+
+                            <Link to={`/product/${product.id}`} className="product-card-link">
+                                <h3>{product.title}</h3>
+                                <p>{product.category || "Uncategorized"}</p>
+                                <p>Rs. {Number(product.price || 0).toFixed(2)}</p>
+                            </Link>
+                        </div>
                     ))}
                 </div>
             ) : null}

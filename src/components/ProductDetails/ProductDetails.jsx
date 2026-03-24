@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { getProductId } from "../../ApiService/api";
+import useWishlist from "../../hooks/useWishlist";
 import { setOrderData } from "../../orderSlice";
 import { addToCart } from "../../cartSlice";
 
@@ -13,6 +15,7 @@ const ProductDetails = () => {
     const location = useLocation();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const { isInWishlist, isWishlistLoading, toggleWishlist } = useWishlist();
 
     const [productDetails, setProductDetails] = useState(null);
     const [quantity, setQuantity] = useState(1);
@@ -122,6 +125,10 @@ const ProductDetails = () => {
         navigate("/cart");
     };
 
+    const handleWishlistClick = () => {
+        toggleWishlist(productDetails);
+    };
+
     if (isLoading) {
         return <div className="product-loading">Loading product details...</div>;
     }
@@ -157,7 +164,18 @@ const ProductDetails = () => {
 
                 <div className="product-details-section">
                     <div className="product-header">
-                        <h1 className="product-title">{productDetails.title}</h1>
+                        <div className="product-header-top">
+                            <h1 className="product-title">{productDetails.title}</h1>
+                            <button
+                                type="button"
+                                className={`product-wishlist-btn ${isInWishlist(productDetails.id) ? "active" : ""}`}
+                                onClick={handleWishlistClick}
+                                disabled={isWishlistLoading}
+                                aria-label={isInWishlist(productDetails.id) ? "Remove from wishlist" : "Add to wishlist"}
+                            >
+                                {isInWishlist(productDetails.id) ? <AiFillHeart /> : <AiOutlineHeart />}
+                            </button>
+                        </div>
 
                         <div className="rating-section">
                             <div className="stars">Rating</div>
