@@ -1,42 +1,109 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/v1";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
 
-const api = axios.create({
-    baseURL: BASE_URL,
-    withCredentials: true, // allow refresh token cookie
+const apiClient = axios.create({
+    baseURL: apiBaseUrl,
+    withCredentials: true,
 });
 
-// Products
-export const getAllProducts = async () => {
-    const { data } = await api.get("/products");
-    return data;
+const readStoredToken = () => {
+    try {
+        return localStorage.getItem("token");
+    } catch {
+        return null;
+    }
 };
 
-export const getProductId = async (id) => {
-    const { data } = await api.get(`/products/${id}`);
-    return data;
+const buildAuthConfig = () => {
+    const savedToken = readStoredToken();
+
+    if (!savedToken) {
+        return {};
+    }
+
+    return {
+        headers: {
+            Authorization: `Bearer ${savedToken}`,
+        },
+    };
 };
 
-// Auth
-export const signup = async ({ name, email, password }) => {
-    const { data } = await api.post("/auth/signup", { name, email, password });
-    return data; // { user, accessToken, refreshToken }
+const getApiErrorMessage = (error, fallbackMessage) => {
+    return error?.response?.data?.error || error?.response?.data?.message || fallbackMessage;
 };
 
-export const login = async ({ email, password }) => {
-    const { data } = await api.post("/auth/login", { email, password });
-    return data; // { user, accessToken, refreshToken }
+const normalizeUser = (user) => {
+    if (!user) {
+        return null;
+    }
+
+    return {
+        ...user,
+        name: user.name || user.email?.split("@")[0] || "Customer",
+    };
 };
 
-export const me = async (accessToken) => {
-    const { data } = await api.get("/auth/me", {
-        headers: { Authorization: `Bearer ${accessToken}` },
+const normalizeProduct = (product) => {
+    if (!product) {
+        return null;
+    }
+
+    return {
+        ...product,
+        image: product.imageUrl || "",
+    };
+};
+
+const registerUser = async ({ name, email, password }) => {
+    const response = await apiClient.post("/auth/register", {
+        name,
+        email,
+        password,
     });
-    return data; // { user }
+
+    return {
+        user: normalizeUser(response.data?.data?.user),
+        token: response.data?.data?.token,
+    };
 };
 
-export const refresh = async () => {
-    const { data } = await api.post("/auth/refresh", {});
-    return data; // { user, accessToken }
+const loginUser = async ({ email, password }) => {
+    const response = await apiClient.post("/auth/login", {
+        email,
+        password,
+    });
+
+    return {
+        user: normalizeUser(response.data?.data?.user),
+        token: response.data?.data?.token,
+    };
+};
+
+const logoutUser = async () => {
+    const response = await apiClient.post("/auth/logout", {}, buildAuthConfig());
+    return response.data;
+};
+
+const getAllProducts = async () => {
+    const response = await apiClient.get("/products");
+    const products = response.data?.data?.products || [];
+
+    return products.map(normalizeProduct);
+};
+
+const getProductId = async (id) => {
+    const response = await apiClient.get(`/products/${id}`);
+    return normalizeProduct(response.data?.data?.product);
+};
+
+export {
+    apiClient,
+    buildAuthConfig,
+    getAllProducts,
+    getApiErrorMessage,
+    getProductId,
+    loginUser,
+    logoutUser,
+    registerUser,
 };

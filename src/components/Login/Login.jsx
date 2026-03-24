@@ -1,126 +1,133 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { setCredentials } from "../../authSlice";
 import { toast } from "react-toastify";
-import { login } from "../../ApiService/api";
+import { setCredentials } from "../../authSlice";
+import { getApiErrorMessage, loginUser } from "../../ApiService/api";
 import "./Login.css";
 
 const Login = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+    const [loginForm, setLoginForm] = useState({
+        email: "",
+        password: "",
+    });
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const redirectPath = location.state?.from?.pathname || "/";
+    const redirectPath = location.state?.from?.pathname || "/";
 
-  const handleSubmit = async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const enteredEmail = String(formData.get("loginEmail") || "").trim();
-      const enteredPassword = String(formData.get("loginPassword") || "").trim();
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
 
-      if (!enteredEmail || !enteredPassword) {
-          const message = "Please enter both email and password.";
-          setErrorMessage(message);
-          toast.error(message);
-          return;
-      }
+        setLoginForm((currentForm) => ({
+            ...currentForm,
+            [name]: value,
+        }));
 
-      try {
-          const { user, accessToken } = await login({ email: enteredEmail, password: enteredPassword });
-          dispatch(setCredentials({ user, token: accessToken }));
-          toast.success("Logged in successfully.");
-          navigate(redirectPath, { replace: true });
-      } catch (err) {
-          const message = err?.response?.data?.message || "Login failed. Please try again.";
-          setErrorMessage(message);
-          toast.error(message);
-      }
-  };
+        if (errorMessage) {
+            setErrorMessage("");
+        }
+    };
 
-  return (
-    <section className="login-page">
-      <div className="login-card">
-        <div className="login-copy">
-          <span className="login-badge">Welcome back</span>
-          <h2 className="login-title">Sign in to continue shopping</h2>
-          <p className="login-subtitle">
-            Use the email and password you created from the sign-up page to access your account.
-          </p>
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
-          {redirectPath !== "/" ? (
-            <p className="login-redirect-note">Please log in to continue to {redirectPath}.</p>
-          ) : null}
-        </div>
+        const trimmedEmail = loginForm.email.trim();
+        const trimmedPassword = loginForm.password.trim();
 
-        <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
-          <div className="login-decoy-fields" aria-hidden="true">
-            <input type="text" name="username" autoComplete="username" tabIndex={-1} />
-            <input type="password" name="password" autoComplete="current-password" tabIndex={-1} />
-          </div>
+        if (!trimmedEmail || !trimmedPassword) {
+            const message = "Please enter both email and password.";
+            setErrorMessage(message);
+            toast.error(message);
+            return;
+        }
 
-          <div className="login-field">
-            <label htmlFor="email">Email address</label>
-            <input
-              id="email"
-              name="loginEmail"
-              type="email"
-              autoComplete="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errorMessage) {
-                  setErrorMessage("");
-                }
-              }}
-            />
-          </div>
+        try {
+            setIsSubmitting(true);
 
-          <div className="login-field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="loginPassword"
-              type="password"
-              autoComplete="new-password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errorMessage) {
-                  setErrorMessage("");
-                }
-              }}
-            />
-          </div>
+            const { user, token } = await loginUser({
+                email: trimmedEmail,
+                password: trimmedPassword,
+            });
 
-          {errorMessage ? <p className="login-error">{errorMessage}</p> : null}
+            dispatch(setCredentials({ user, token }));
+            toast.success("Logged in successfully.");
+            navigate(redirectPath, { replace: true });
+        } catch (error) {
+            const message = getApiErrorMessage(error, "Login failed. Please try again.");
+            setErrorMessage(message);
+            toast.error(message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-          <button type="submit" className="login-submit-btn">
-            Log In
-          </button>
+    return (
+        <section className="login-page">
+            <div className="login-card">
+                <div className="login-copy">
+                    <span className="login-badge">Welcome back</span>
+                    <h2 className="login-title">Sign in to continue shopping</h2>
+                    <p className="login-subtitle">
+                        Use the email and password you created from the sign-up page to access your account.
+                    </p>
 
-          <div className="login-footer">
-            <span>New here?</span>
-            <Link to="/signup" state={location.state} className="login-footer-link">
-              Create an account
-            </Link>
-          </div>
+                    {redirectPath !== "/" ? (
+                        <p className="login-redirect-note">Please log in to continue to {redirectPath}.</p>
+                    ) : null}
+                </div>
 
-          <Link to="/" className="login-secondary-link">
-            Continue browsing products
-          </Link>
-        </form>
-      </div>
-    </section>
-  );
+                <form className="login-form" onSubmit={handleSubmit}>
+                    <div className="login-field">
+                        <label htmlFor="email">Email address</label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            autoCapitalize="none"
+                            spellCheck={false}
+                            placeholder="Enter your email"
+                            value={loginForm.email}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="login-field">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            value={loginForm.password}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    {errorMessage ? <p className="login-error">{errorMessage}</p> : null}
+
+                    <button type="submit" className="login-submit-btn" disabled={isSubmitting}>
+                        {isSubmitting ? "Logging In..." : "Log In"}
+                    </button>
+
+                    <div className="login-footer">
+                        <span>New here?</span>
+                        <Link to="/signup" state={location.state} className="login-footer-link">
+                            Create an account
+                        </Link>
+                    </div>
+
+                    <Link to="/" className="login-secondary-link">
+                        Continue browsing products
+                    </Link>
+                </form>
+            </div>
+        </section>
+    );
 };
 
 export default Login;
