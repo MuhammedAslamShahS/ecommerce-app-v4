@@ -1,69 +1,81 @@
 import "./ProductDetails.css";
 import { useEffect, useState } from "react";
-import { getProductId } from "../../ApiService/api";
-import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { getProductId } from "../../ApiService/api";
 import { setOrderData } from "../../orderSlice";
 import { addToCart } from "../../cartSlice";
-import { toast } from "react-toastify";
 
 const ProductDetails = () => {
-    // Router hooks
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
-
-    // Redux hooks
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-    // Fetched product details temporarily stored
-    const [productDetails, setProductDetails] = useState({});
+    const [productDetails, setProductDetails] = useState(null);
     const [quantity, setQuantity] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const [showCartPrompt, setShowCartPrompt] = useState(false);
+    const [isProductMissing, setIsProductMissing] = useState(false);
 
-    // If user is not logged in, send them to login page
-    // and keep the current page in state for redirect after login
-
-    const requireLogin = () => {
-        toast.info("Please log in to continue.");
-        navigate("/login", { state: { from: location } });
-    };
-
-    // Fetching product details based on id
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                setLoading(true);
-                const data = await getProductId(id);
-                setProductDetails(data);
+                setIsLoading(true);
+                setIsProductMissing(false);
+                setQuantity(1);
+
+                const product = await getProductId(id);
+                setProductDetails(product);
             } catch (error) {
                 console.error("Error fetching product:", error);
-                toast.error("Unable to load product details.");
+
+                if (error?.response?.status === 404) {
+                    setIsProductMissing(true);
+                } else {
+                    toast.error("Unable to load product details.");
+                }
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
         fetchProductDetails();
     }, [id]);
 
-    // Send the selected product directly to checkout
+    const requireLogin = () => {
+        toast.info("Please log in to continue.");
+        navigate("/login", { state: { from: location } });
+    };
+
+    const availableStock = Number(productDetails?.stock ?? 0);
+    const currentPrice = Number(productDetails?.price ?? 0);
+    const originalPrice = currentPrice * 2;
+    const discountAmount = Math.max(originalPrice - currentPrice, 0);
+    const discountPercentage = originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0;
+    const isOutOfStock = availableStock < 1;
+
     const startCheckout = () => {
         dispatch(
             setOrderData({
                 product: productDetails,
-                quantity: quantity,
+                quantity,
             }),
         );
+
         navigate("/checkout");
     };
 
-    //  Buy Now should work only for logged-in users
     const handleBuyNow = () => {
         if (!isAuthenticated) {
             requireLogin();
+            return;
+        }
+
+        if (isOutOfStock) {
+            toast.error("This product is currently out of stock.");
             return;
         }
 
@@ -71,22 +83,26 @@ const ProductDetails = () => {
         startCheckout();
     };
 
-    // Quantity management : Increase quantity
     const handleIncrement = () => {
-        setQuantity(quantity + 1);
-    };
-
-    // Decrease quantity but do not allow below 1
-    const handleDecrement = () => {
-        if (quantity > 1) {
-            setQuantity(quantity - 1);
+        if (availableStock > 0 && quantity < availableStock) {
+            setQuantity((currentQuantity) => currentQuantity + 1);
         }
     };
 
-    // Add to Cart should work only for logged-in users
+    const handleDecrement = () => {
+        if (quantity > 1) {
+            setQuantity((currentQuantity) => currentQuantity - 1);
+        }
+    };
+
     const handleAddToCart = () => {
         if (!isAuthenticated) {
             requireLogin();
+            return;
+        }
+
+        if (isOutOfStock) {
+            toast.error("This product is currently out of stock.");
             return;
         }
 
@@ -96,68 +112,67 @@ const ProductDetails = () => {
                 quantity,
             }),
         );
+
         toast.success("Item added to cart.");
         setShowCartPrompt(true);
     };
 
-    // Move user to cart page
     const handleGoToCart = () => {
         setShowCartPrompt(false);
         navigate("/cart");
     };
 
-    // Loading state (UI)
-    if (loading) {
+    if (isLoading) {
         return <div className="product-loading">Loading product details...</div>;
     }
 
-    // Calculate discount and savings
-    const originalPrice = productDetails.price * 2;
-    const discountAmount = originalPrice - productDetails.price;
-    const discountPercentage = Math.round((discountAmount / originalPrice) * 100);
+    if (isProductMissing || !productDetails) {
+        return (
+            <div className="product-loading">
+                <div>
+                    <p>Product not found.</p>
+                    <Link to="/" className="back-link">
+                        Back to Products
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="product-page-container">
-            {/* BREADCRUMB / BACK BUTTON */}
             <div className="breadcrumb-section">
                 <Link to="/" className="back-link">
-                    ← Back to Products
+                    Back to Products
                 </Link>
             </div>
 
-            {/* MAIN PRODUCT CONTAINER */}
             <div className="product-container-wrapper">
-                {/* LEFT SECTION - PRODUCT IMAGE */}
                 <div className="product-image-section">
                     <div className="image-container">
                         <img src={productDetails.image} alt={productDetails.title} className="product-image" />
-                        {discountPercentage > 0 && <div className="discount-badge">-{discountPercentage}%</div>}
+                        {discountPercentage > 0 ? <div className="discount-badge">-{discountPercentage}%</div> : null}
                     </div>
                 </div>
 
-                {/* RIGHT SECTION - PRODUCT DETAILS */}
                 <div className="product-details-section">
-                    {/* PRODUCT HEADER */}
                     <div className="product-header">
                         <h1 className="product-title">{productDetails.title}</h1>
 
-                        {/* RATING SECTION */}
                         <div className="rating-section">
-                            <div className="stars">⭐⭐⭐⭐⭐</div>
-                            <span className="rating-text">4.5/5 (324 Reviews)</span>
+                            <div className="stars">Rating</div>
+                            <span className="rating-text">4.5/5 (324 reviews)</span>
                         </div>
                     </div>
 
-                    {/* PRICE SECTION */}
                     <div className="price-section">
                         <div className="price-display">
-                            <span className="current-price">₹ {productDetails.price}</span>
-                            <span className="original-price">₹ {originalPrice}</span>
+                            <span className="current-price">Rs. {currentPrice.toFixed(2)}</span>
+                            <span className="original-price">Rs. {originalPrice.toFixed(2)}</span>
                         </div>
-                        <div className="savings-info">You save ₹ {discountAmount}</div>
+                        <div className="savings-info">You save Rs. {discountAmount.toFixed(2)}</div>
                     </div>
 
-                    {/* QUANTITY SELECTOR */}
                     <div className="quantity-section">
                         <label className="quantity-label">Select Quantity:</label>
                         <div className="quantity-selector">
@@ -166,30 +181,35 @@ const ProductDetails = () => {
                                 onClick={handleDecrement}
                                 disabled={quantity === 1}
                             >
-                                −
+                                -
                             </button>
                             <input type="text" className="quantity-input" value={quantity} readOnly />
-                            <button className="quantity-btn increment-btn" onClick={handleIncrement}>
+                            <button
+                                className="quantity-btn increment-btn"
+                                onClick={handleIncrement}
+                                disabled={isOutOfStock || quantity >= availableStock}
+                            >
                                 +
                             </button>
                         </div>
-                        <span className="stock-available">Stock Available: 50</span>
+                        <span className="stock-available">
+                            {isOutOfStock ? "Currently out of stock" : `Stock Available: ${availableStock}`}
+                        </span>
                     </div>
 
-                    {/* ACTION BUTTONS */}
                     <div className="action-buttons">
-                        <button className="btn btn-add-to-cart" onClick={handleAddToCart}>
-                            🛒 ADD TO CART
+                        <button className="btn btn-add-to-cart" onClick={handleAddToCart} disabled={isOutOfStock}>
+                            ADD TO CART
                         </button>
 
-                        <button className="btn btn-buy-now" onClick={handleBuyNow}>
-                            ⚡ BUY NOW
+                        <button className="btn btn-buy-now" onClick={handleBuyNow} disabled={isOutOfStock}>
+                            BUY NOW
                         </button>
                     </div>
                 </div>
             </div>
 
-            {showCartPrompt && (
+            {showCartPrompt ? (
                 <div className="cart-action-popup-overlay" onClick={() => setShowCartPrompt(false)}>
                     <div className="cart-action-popup" onClick={(event) => event.stopPropagation()}>
                         <h3 className="cart-action-popup-title">Item added to cart</h3>
@@ -204,7 +224,7 @@ const ProductDetails = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            ) : null}
         </div>
     );
 };

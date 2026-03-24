@@ -1,43 +1,86 @@
 import "./Products.css";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { getAllProducts } from "../../ApiService/api";
 
-const allProducts = [
-  { id: 1, name: "Men T-Shirt", category: "men" },
-  { id: 2, name: "Men Jeans", category: "men" },
-  { id: 3, name: "Women Dress", category: "women" },
-  { id: 4, name: "Women Bag", category: "women" },
-  { id: 5, name: "Kids Shirt", category: "kids" },
-  { id: 6, name: "Ring", category: "jewellery" },
-  { id: 7, name: "Watch", category: "accessories" },
-  { id: 8, name: "Perfume", category: "beauty-grooming" },
-];
+const createCategorySlug = (value) => {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, " ")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+};
+
+const formatCategoryLabel = (value) => {
+    return String(value || "")
+        .split("-")
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+};
 
 const Products = () => {
-  const { category } = useParams();
+    const { category } = useParams();
 
-  const filteredProducts =
-    category === "all"
-      ? allProducts
-      : allProducts.filter((item) => item.category === category);
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
 
-  return (
-    <div className="Products-page">
-      <h1>{category === "all" ? "All Products" : category}</h1>
+    const selectedCategory = category || "all";
 
-      <div className="products-grid">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((item) => (
-            <div key={item.id} className="product-card">
-              <h3>{item.name}</h3>
-              <p>{item.category}</p>
-            </div>
-          ))
-        ) : (
-          <p>No products found</p>
-        )}
-      </div>
-    </div>
-  );
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                setIsLoading(true);
+                setHasError(false);
+
+                const productList = await getAllProducts();
+                setProducts(productList);
+            } catch (error) {
+                console.error("Unable to load products", error);
+                setHasError(true);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadProducts();
+    }, []);
+
+    const filteredProducts =
+        selectedCategory === "all"
+            ? products
+            : products.filter((product) => createCategorySlug(product.category) === selectedCategory);
+
+    const pageTitle = selectedCategory === "all" ? "All Products" : formatCategoryLabel(selectedCategory);
+
+    return (
+        <div className="Products-page">
+            <h1>{pageTitle}</h1>
+
+            {isLoading ? <p>Loading products...</p> : null}
+            {hasError ? <p>Unable to load products right now.</p> : null}
+            {!isLoading && !hasError && filteredProducts.length === 0 ? <p>No products found</p> : null}
+
+            {!isLoading && !hasError && filteredProducts.length > 0 ? (
+                <div className="products-grid">
+                    {filteredProducts.map((product) => (
+                        <Link
+                            key={product.id}
+                            to={`/product/${product.id}`}
+                            className="product-card"
+                            style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                        >
+                            <h3>{product.title}</h3>
+                            <p>{product.category || "Uncategorized"}</p>
+                            <p>Rs. {Number(product.price || 0).toFixed(2)}</p>
+                        </Link>
+                    ))}
+                </div>
+            ) : null}
+        </div>
+    );
 };
 
 export default Products;
