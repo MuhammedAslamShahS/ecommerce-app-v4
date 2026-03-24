@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { logout } from "../../authSlice";
 import { getApiErrorMessage, logoutUser } from "../../ApiService/api";
+import { clearCart } from "../../cartSlice";
+import { clearOrder } from "../../orderSlice";
 import "./LogOut.css";
 
 const LogOut = () => {
@@ -25,6 +27,8 @@ const LogOut = () => {
                 const message = getApiErrorMessage(error, "Unable to contact the server. Logging out locally.");
                 toast.info(message);
             } finally {
+                dispatch(clearCart());
+                dispatch(clearOrder());
                 dispatch(logout());
                 toast.success("Logged out successfully.");
                 navigate("/login", { replace: true });

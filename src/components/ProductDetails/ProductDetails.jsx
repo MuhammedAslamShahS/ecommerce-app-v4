@@ -4,10 +4,10 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import { getProductId } from "../../ApiService/api";
+import { addProductToCart, getProductId } from "../../ApiService/api";
 import useWishlist from "../../hooks/useWishlist";
 import { setOrderData } from "../../orderSlice";
-import { addToCart } from "../../cartSlice";
+import { saveCartItem } from "../../cartSlice";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -22,6 +22,7 @@ const ProductDetails = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showCartPrompt, setShowCartPrompt] = useState(false);
     const [isProductMissing, setIsProductMissing] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
 
     useEffect(() => {
         const fetchProductDetails = async () => {
@@ -98,7 +99,7 @@ const ProductDetails = () => {
         }
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         if (!isAuthenticated) {
             requireLogin();
             return;
@@ -109,15 +110,24 @@ const ProductDetails = () => {
             return;
         }
 
-        dispatch(
-            addToCart({
-                product: productDetails,
-                quantity,
-            }),
-        );
+        try {
+            setIsAddingToCart(true);
 
-        toast.success("Item added to cart.");
-        setShowCartPrompt(true);
+            const cartItem = await addProductToCart(productDetails.id, quantity);
+
+            if (!cartItem) {
+                throw new Error("Cart item was not returned");
+            }
+
+            dispatch(saveCartItem(cartItem));
+
+            toast.success("Item added to cart.");
+            setShowCartPrompt(true);
+        } catch (error) {
+            toast.error("Unable to add this product to cart right now.");
+        } finally {
+            setIsAddingToCart(false);
+        }
     };
 
     const handleGoToCart = () => {
@@ -216,8 +226,12 @@ const ProductDetails = () => {
                     </div>
 
                     <div className="action-buttons">
-                        <button className="btn btn-add-to-cart" onClick={handleAddToCart} disabled={isOutOfStock}>
-                            ADD TO CART
+                        <button
+                            className="btn btn-add-to-cart"
+                            onClick={handleAddToCart}
+                            disabled={isOutOfStock || isAddingToCart}
+                        >
+                            {isAddingToCart ? "ADDING..." : "ADD TO CART"}
                         </button>
 
                         <button className="btn btn-buy-now" onClick={handleBuyNow} disabled={isOutOfStock}>

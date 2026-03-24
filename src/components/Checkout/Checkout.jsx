@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { clearCart } from "../../cartSlice";
-import { setPaymentMethod, clearOrder } from "../../orderSlice";
 import { toast } from "react-toastify";
+import { removeProductFromCart } from "../../ApiService/api";
+import { clearCart } from "../../cartSlice";
+import { clearOrder, setPaymentMethod } from "../../orderSlice";
 import "./Checkout.css";
 
 const Checkout = () => {
@@ -35,20 +36,27 @@ const Checkout = () => {
         dispatch(setPaymentMethod(method));
     };
 
-    const handlePlaceOrder = () => {
+    const handlePlaceOrder = async () => {
         if (!selectedPayment) {
             toast.error("Please select a payment method.");
             return;
         }
 
-        toast.success(`Order placed successfully with ${selectedPayment.toUpperCase()}.`);
+        try {
+            if (!isSingleProductCheckout) {
+                await Promise.all(
+                    checkoutItems.map((item) => removeProductFromCart(item.productId))
+                );
 
-        if (!isSingleProductCheckout) {
-            dispatch(clearCart());
+                dispatch(clearCart());
+            }
+
+            toast.success(`Order placed successfully with ${selectedPayment.toUpperCase()}.`);
+            dispatch(clearOrder());
+            navigate("/");
+        } catch (error) {
+            toast.error("Unable to complete checkout right now.");
         }
-
-        dispatch(clearOrder());
-        navigate("/");
     };
 
     if (checkoutItems.length === 0) {

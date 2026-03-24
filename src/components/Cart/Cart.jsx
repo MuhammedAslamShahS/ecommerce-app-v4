@@ -1,37 +1,75 @@
 import "./Cart.css";
-import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart, updateQuantity } from "../../cartSlice";
-import { clearOrder } from "../../orderSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  getApiErrorMessage,
+  getCartItems,
+  removeProductFromCart,
+  updateCartItemQuantity,
+} from "../../ApiService/api";
+import { removeCartItem, saveCartItem, setCartItems } from "../../cartSlice";
+import { clearOrder } from "../../orderSlice";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartItems = useSelector((state) => state.cart.items);
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCartItems = async () => {
+      try {
+        setIsLoading(true);
+
+        const savedCartItems = await getCartItems();
+        dispatch(setCartItems(savedCartItems));
+      } catch (error) {
+        const message = getApiErrorMessage(error, "Unable to load your cart right now.");
+        toast.error(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCartItems();
+  }, [dispatch]);
+
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
+  const updateItemQuantity = async (item, nextQuantity) => {
+    try {
+      const updatedCartItem = await updateCartItemQuantity(
+        item.productId,
+        nextQuantity
+      );
+
+      if (!updatedCartItem) {
+        throw new Error("Updated cart item was not returned");
+      }
+
+      dispatch(saveCartItem(updatedCartItem));
+    } catch (error) {
+      const message = getApiErrorMessage(
+        error,
+        "Unable to update this cart item right now."
+      );
+      toast.error(message);
+    }
+  };
+
   const handleIncrement = (item) => {
-    dispatch(
-      updateQuantity({
-        id: item.id,
-        quantity: item.quantity + 1,
-      })
-    );
+    updateItemQuantity(item, item.quantity + 1);
   };
 
   const handleDecrement = (item) => {
     if (item.quantity > 1) {
-      dispatch(
-        updateQuantity({
-          id: item.id,
-          quantity: item.quantity - 1,
-        })
-      );
+      updateItemQuantity(item, item.quantity - 1);
     }
   };
 
@@ -41,10 +79,27 @@ const Cart = () => {
     navigate("/checkout");
   };
 
-  const handleRemoveItem = (itemId) => {
-    dispatch(removeFromCart(itemId));
-    toast.info("Item removed from cart.");
+  const handleRemoveItem = async (productId) => {
+    try {
+      await removeProductFromCart(productId);
+      dispatch(removeCartItem(productId));
+      toast.info("Item removed from cart.");
+    } catch (error) {
+      const message = getApiErrorMessage(
+        error,
+        "Unable to remove this item right now."
+      );
+      toast.error(message);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="cart-empty-page">
+        <h2 className="cart-empty-title">Loading your cart...</h2>
+      </div>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (
@@ -110,7 +165,7 @@ const Cart = () => {
 
               <button
                 className="cart-remove-btn"
-                onClick={() => handleRemoveItem(item.id)}
+                onClick={() => handleRemoveItem(item.productId)}
               >
                 Remove
               </button>

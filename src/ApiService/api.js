@@ -66,6 +66,24 @@ const normalizeWishlistItem = (wishlistItem) => {
     };
 };
 
+const normalizeCartItem = (cartItem) => {
+    if (!cartItem) {
+        return null;
+    }
+
+    const product = normalizeProduct(cartItem.product);
+
+    return {
+        id: cartItem.id,
+        productId: cartItem.productId || product?.id,
+        title: product?.title || "",
+        price: Number(product?.price || 0),
+        image: product?.image || "",
+        quantity: Number(cartItem.quantity || 1),
+        product,
+    };
+};
+
 const registerUser = async ({ name, email, password }) => {
     const response = await apiClient.post("/auth/register", {
         name,
@@ -130,16 +148,52 @@ const removeProductFromWishlist = async (productId) => {
     return response.data;
 };
 
+const getCartItems = async () => {
+    const response = await apiClient.get("/cart", buildAuthConfig());
+    const cartItems = response.data?.data?.cartItems || [];
+
+    return cartItems.map(normalizeCartItem);
+};
+
+const addProductToCart = async (productId, quantity = 1) => {
+    const response = await apiClient.post(
+        "/cart",
+        { productId, quantity },
+        buildAuthConfig(),
+    );
+
+    return normalizeCartItem(response.data?.data?.cartItem);
+};
+
+const updateCartItemQuantity = async (productId, quantity) => {
+    const response = await apiClient.patch(
+        `/cart/${productId}`,
+        { quantity },
+        buildAuthConfig(),
+    );
+
+    return normalizeCartItem(response.data?.data?.cartItem);
+};
+
+const removeProductFromCart = async (productId) => {
+    const response = await apiClient.delete(`/cart/${productId}`, buildAuthConfig());
+    return response.data;
+};
+
 export {
     addProductToWishlist,
+    addProductToCart,
     apiClient,
     buildAuthConfig,
     getAllProducts,
     getApiErrorMessage,
+    getCartItems,
     getProductId,
     getWishlistItems,
     loginUser,
     logoutUser,
+    removeProductFromCart,
     removeProductFromWishlist,
     registerUser,
+    updateCartItemQuantity,
 };
