@@ -1,0 +1,143 @@
+.orders-panel {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 28px;
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.orders-title {
+  font-size: 28px;
+  color: #111;
+  font-weight: 700;
+  margin: 0;
+}
+
+.orders-subtitle,
+.orders-message {
+  color: #666;
+  margin: 0;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-card {
+  border: 1px solid #ececec;
+  border-radius: 18px;
+  padding: 18px;
+  background-color: #fffdfb;
+}
+
+.order-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.order-id {
+  color: #df6a2f;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.order-meta {
+  color: #5a5a5a;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.order-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background-color: #e9f7ef;
+  color: #2d8651;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.order-items {
+  display: grid;
+  gap: 12px;
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background-color: #ffffff;
+}
+
+.order-item-image-wrap {
+  width: 84px;
+  height: 84px;
+  border-radius: 12px;
+  background-color: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.order-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.order-item-title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #111;
+}
+
+.order-item-meta {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+@media (max-width: 576px) {
+  .orders-panel {
+    padding: 18px;
+  }
+
+  .orders-header,
+  .order-card-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .orders-title {
+    font-size: 22px;
+  }
+
+  .order-item {
+    grid-template-columns: 1fr;
+  }
+
+  .order-item-image-wrap {
+    width: 100%;
+    height: 200px;
+  }
+}

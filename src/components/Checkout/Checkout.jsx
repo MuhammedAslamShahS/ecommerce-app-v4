@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { removeProductFromCart } from "../../ApiService/api";
+import { createOrder, getApiErrorMessage } from "../../ApiService/api";
 import { clearCart } from "../../cartSlice";
 import { clearOrder, setPaymentMethod } from "../../orderSlice";
 import "./Checkout.css";
@@ -13,12 +13,14 @@ const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [selectedPayment, setSelectedPayment] = useState(order.paymentMethod || null);
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
     const isSingleProductCheckout = Boolean(order.product);
     const checkoutItems = isSingleProductCheckout
         ? [
               {
                   id: order.product.id ?? "direct-order",
+                  productId: order.product.id,
                   title: order.product.title,
                   image: order.product.image,
                   price: order.product.price,
@@ -43,19 +45,28 @@ const Checkout = () => {
         }
 
         try {
-            if (!isSingleProductCheckout) {
-                await Promise.all(
-                    checkoutItems.map((item) => removeProductFromCart(item.productId))
-                );
+            setIsPlacingOrder(true);
 
+            await createOrder({
+                paymentMethod: selectedPayment,
+                items: checkoutItems.map((item) => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                })),
+            });
+
+            if (!isSingleProductCheckout) {
                 dispatch(clearCart());
             }
 
             toast.success(`Order placed successfully with ${selectedPayment.toUpperCase()}.`);
             dispatch(clearOrder());
-            navigate("/");
+            navigate("/profile?section=my-orders");
         } catch (error) {
-            toast.error("Unable to complete checkout right now.");
+            const message = getApiErrorMessage(error, "Unable to complete checkout right now.");
+            toast.error(message);
+        } finally {
+            setIsPlacingOrder(false);
         }
     };
 
@@ -146,11 +157,11 @@ const Checkout = () => {
                     </div>
                 </label>
 
-                <button className="place-order-btn" onClick={handlePlaceOrder}>
-                    Place Order
+                <button className="place-order-btn" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
+                    {isPlacingOrder ? "Placing Order..." : "Place Order"}
                 </button>
 
-                <button className="back-btn" onClick={() => navigate(-1)}>
+                <button className="back-btn" onClick={() => navigate(-1)} disabled={isPlacingOrder}>
                     Back
                 </button>
             </div>

@@ -84,6 +84,31 @@ const normalizeCartItem = (cartItem) => {
     };
 };
 
+const normalizeOrderItem = (orderItem) => {
+    if (!orderItem) {
+        return null;
+    }
+
+    return {
+        ...orderItem,
+        image: orderItem.imageUrl || "",
+        price: Number(orderItem.price || 0),
+        quantity: Number(orderItem.quantity || 1),
+    };
+};
+
+const normalizeOrder = (order) => {
+    if (!order) {
+        return null;
+    }
+
+    return {
+        ...order,
+        totalAmount: Number(order.totalAmount || 0),
+        items: Array.isArray(order.items) ? order.items.map(normalizeOrderItem) : [],
+    };
+};
+
 const registerUser = async ({ name, email, password }) => {
     const response = await apiClient.post("/auth/register", {
         name,
@@ -180,14 +205,33 @@ const removeProductFromCart = async (productId) => {
     return response.data;
 };
 
+const createOrder = async ({ paymentMethod, items }) => {
+    const response = await apiClient.post(
+        "/orders",
+        { paymentMethod, items },
+        buildAuthConfig(),
+    );
+
+    return normalizeOrder(response.data?.data?.order);
+};
+
+const getMyOrders = async () => {
+    const response = await apiClient.get("/orders", buildAuthConfig());
+    const orders = response.data?.data?.orders || [];
+
+    return orders.map(normalizeOrder);
+};
+
 export {
     addProductToWishlist,
     addProductToCart,
     apiClient,
     buildAuthConfig,
+    createOrder,
     getAllProducts,
     getApiErrorMessage,
     getCartItems,
+    getMyOrders,
     getProductId,
     getWishlistItems,
     loginUser,
