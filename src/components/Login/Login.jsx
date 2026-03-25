@@ -6,6 +6,22 @@ import { setCredentials } from "../../authSlice";
 import { getApiErrorMessage, loginUser } from "../../ApiService/api";
 import "./Login.css";
 
+const getSafeRedirectPath = (locationState) => {
+    const redirectSource = locationState?.from;
+
+    if (!redirectSource?.pathname) {
+        return "/";
+    }
+
+    const blockedRedirectPaths = new Set(["/login", "/signup", "/register", "/logout"]);
+
+    if (blockedRedirectPaths.has(redirectSource.pathname)) {
+        return "/";
+    }
+
+    return `${redirectSource.pathname}${redirectSource.search || ""}`;
+};
+
 const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -18,9 +34,7 @@ const Login = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const redirectPath = location.state?.from
-        ? `${location.state.from.pathname}${location.state.from.search || ""}`
-        : "/";
+    const redirectPath = getSafeRedirectPath(location.state);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;

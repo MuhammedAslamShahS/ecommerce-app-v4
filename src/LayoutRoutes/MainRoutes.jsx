@@ -34,11 +34,11 @@ const MainRoutes = ({ homeTopContent = null }) => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/register" element={<SignUp />} />
+                <Route path="/logout" element={<LogOut />} />
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/logout" element={<LogOut />} />
                     <Route path="/profile" element={<Profile />} />
                 </Route>
             </Routes>
