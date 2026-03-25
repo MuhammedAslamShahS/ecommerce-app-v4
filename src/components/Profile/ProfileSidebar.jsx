@@ -29,8 +29,19 @@ const menuItems = [
   { id: 11, icon: <RiLogoutBoxRLine />, label: "LOG OUT", key: "logout" },
 ];
 
-const ProfileSidebar = ({ activeSection, setActiveSection }) => {
+const ProfileSidebar = ({
+  activeSection,
+  setActiveSection,
+  profileData,
+  isLoadingProfile,
+}) => {
   const navigate = useNavigate();
+
+  const displayName = isLoadingProfile
+    ? "Loading..."
+    : profileData?.name || "Customer";
+
+  const displayEmail = profileData?.email || "customer@example.com";
 
   const handleClick = (item) => {
     if (item.key === "logout") {
@@ -49,8 +60,8 @@ const ProfileSidebar = ({ activeSection, setActiveSection }) => {
         </div>
 
         <div className="profile-user-details">
-          <h2 className="profile-name">User Name</h2>
-          <p className="mobile-number">+91 0000000000</p>
+          <h2 className="profile-name">{displayName}</h2>
+          <p className="mobile-number">{displayEmail}</p>
         </div>
       </div>
 

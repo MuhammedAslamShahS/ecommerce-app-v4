@@ -6,13 +6,18 @@ import { RiAccountCircleLine } from "react-icons/ri";
 import { CiHeart } from "react-icons/ci";
 import { AiOutlineShopping } from "react-icons/ai";
 
-const ProfileHeader = () => {
+const ProfileHeader = ({ profileData }) => {
     const navigate = useNavigate();
+    const displayName = profileData?.name || "My Account";
 
     return (
         <header className="profile-header">
             <div className="profile-header-left" onClick={() => navigate("/")}>
                 <p>{`< Back to Home`}</p>
+            </div>
+
+            <div className="profile-header-center">
+                <p>{displayName}</p>
             </div>
 
             <div className="profile-header-right">

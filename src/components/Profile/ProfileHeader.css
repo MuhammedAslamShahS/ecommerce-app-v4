@@ -7,6 +7,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 22px;
+  gap: 14px;
 }
 
 .profile-header-left {
@@ -16,6 +17,20 @@
   font-size: 17px;
   color: #111;
   cursor: pointer;
+}
+
+.profile-header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-header-center p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #df6a2f;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .profile-header-arrow {
@@ -47,6 +62,10 @@
 
   .profile-header-left {
     font-size: 14px;
+  }
+
+  .profile-header-center {
+    display: none;
   }
 
   .header-icon-box {

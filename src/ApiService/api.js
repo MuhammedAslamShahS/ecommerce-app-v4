@@ -41,6 +41,10 @@ const normalizeUser = (user) => {
     return {
         ...user,
         name: user.name || user.email?.split("@")[0] || "Customer",
+        joinedAt: user.createdAT || user.joinedAt || null,
+        orderCount: Number(user?._count?.orders || user.orderCount || 0),
+        wishlistCount: Number(user?._count?.wishlistItems || user.wishlistCount || 0),
+        cartCount: Number(user?._count?.cartItems || user.cartCount || 0),
     };
 };
 
@@ -139,6 +143,11 @@ const logoutUser = async () => {
     return response.data;
 };
 
+const getCurrentUserProfile = async () => {
+    const response = await apiClient.get("/auth/me", buildAuthConfig());
+    return normalizeUser(response.data?.data?.user);
+};
+
 const getAllProducts = async () => {
     const response = await apiClient.get("/products");
     const products = response.data?.data?.products || [];
@@ -231,6 +240,7 @@ export {
     getAllProducts,
     getApiErrorMessage,
     getCartItems,
+    getCurrentUserProfile,
     getMyOrders,
     getProductId,
     getWishlistItems,

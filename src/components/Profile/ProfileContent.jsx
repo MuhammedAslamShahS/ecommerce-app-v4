@@ -12,11 +12,22 @@ import SharedProducts from "../SharedProducts/SharedProducts";
 import ShopPreference from "../ShopPreference/ShopPreference";
 import MyReviews from "../MyReviews/MyReviews";
 
-const ProfileContent = ({ activeSection }) => {
+const ProfileContent = ({
+  activeSection,
+  profileData,
+  isLoadingProfile,
+  profileError,
+}) => {
   const renderContent = () => {
     switch (activeSection) {
       case "my-account":
-        return <MyAccount />;
+        return (
+          <MyAccount
+            profileData={profileData}
+            isLoadingProfile={isLoadingProfile}
+            profileError={profileError}
+          />
+        );
       case "my-orders":
         return <MyOrders />;
       case "my-credits":
