@@ -278,11 +278,22 @@ const getMyOrders = async () => {
     return orders.map(normalizeOrder);
 };
 
+const cancelOrder = async (orderId) => {
+    const response = await apiClient.patch(
+        `/orders/${orderId}/cancel`,
+        {},
+        buildAuthConfig(),
+    );
+
+    return normalizeOrder(response.data?.data?.order);
+};
+
 export {
     addProductToWishlist,
     addProductToCart,
     apiClient,
     buildAuthConfig,
+    cancelOrder,
     createAddress,
     createOrder,
     deleteAddress,
