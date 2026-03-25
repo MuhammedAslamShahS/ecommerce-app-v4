@@ -125,6 +125,107 @@
     line-height: 1.6;
 }
 
+.checkout-info-box {
+    padding: 16px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    background-color: #fff7ef;
+    border: 1px solid #f0d9c3;
+}
+
+.checkout-info-box p {
+    margin: 0 0 12px;
+    color: #5c4b3b;
+    line-height: 1.6;
+}
+
+.checkout-address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.checkout-address-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.checkout-address-option.selected {
+    border-color: var(--primary-orange-color);
+    background-color: #fff6ef;
+}
+
+.checkout-address-option input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--primary-orange-color);
+}
+
+.checkout-address-content {
+    flex: 1;
+}
+
+.checkout-address-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.checkout-address-top h4,
+.checkout-address-content p {
+    margin: 0;
+}
+
+.checkout-address-top h4 {
+    font-size: 16px;
+    color: #333;
+}
+
+.checkout-address-content p {
+    color: #666;
+    line-height: 1.6;
+}
+
+.checkout-address-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: #ffe8d7;
+    color: #cf652b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.manage-address-btn {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 22px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f08a3c;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.manage-address-btn.secondary {
+    background-color: #efe6d8;
+    color: #7b5d45;
+}
+
 .payment-option {
     display: flex;
     align-items: center;

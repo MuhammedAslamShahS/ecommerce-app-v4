@@ -59,6 +59,25 @@ const normalizeProduct = (product) => {
     };
 };
 
+const normalizeAddress = (address) => {
+    if (!address) {
+        return null;
+    }
+
+    return {
+        ...address,
+        fullName: address.fullName || "",
+        phone: address.phone || "",
+        line1: address.line1 || "",
+        line2: address.line2 || "",
+        city: address.city || "",
+        state: address.state || "",
+        postalCode: address.postalCode || "",
+        country: address.country || "",
+        isDefault: Boolean(address.isDefault),
+    };
+};
+
 const normalizeWishlistItem = (wishlistItem) => {
     if (!wishlistItem) {
         return null;
@@ -110,6 +129,7 @@ const normalizeOrder = (order) => {
         ...order,
         totalAmount: Number(order.totalAmount || 0),
         items: Array.isArray(order.items) ? order.items.map(normalizeOrderItem) : [],
+        shippingAddress: normalizeAddress(order.shippingAddress),
     };
 };
 
@@ -146,6 +166,33 @@ const logoutUser = async () => {
 const getCurrentUserProfile = async () => {
     const response = await apiClient.get("/auth/me", buildAuthConfig());
     return normalizeUser(response.data?.data?.user);
+};
+
+const getAddresses = async () => {
+    const response = await apiClient.get("/addresses", buildAuthConfig());
+    const addresses = response.data?.data?.addresses || [];
+
+    return addresses.map(normalizeAddress);
+};
+
+const createAddress = async (addressData) => {
+    const response = await apiClient.post("/addresses", addressData, buildAuthConfig());
+    return normalizeAddress(response.data?.data?.address);
+};
+
+const updateAddress = async (addressId, addressData) => {
+    const response = await apiClient.patch(
+        `/addresses/${addressId}`,
+        addressData,
+        buildAuthConfig(),
+    );
+
+    return normalizeAddress(response.data?.data?.address);
+};
+
+const deleteAddress = async (addressId) => {
+    const response = await apiClient.delete(`/addresses/${addressId}`, buildAuthConfig());
+    return response.data;
 };
 
 const getAllProducts = async () => {
@@ -214,10 +261,10 @@ const removeProductFromCart = async (productId) => {
     return response.data;
 };
 
-const createOrder = async ({ paymentMethod, items }) => {
+const createOrder = async ({ paymentMethod, items, addressId }) => {
     const response = await apiClient.post(
         "/orders",
-        { paymentMethod, items },
+        { paymentMethod, items, addressId },
         buildAuthConfig(),
     );
 
@@ -236,8 +283,11 @@ export {
     addProductToCart,
     apiClient,
     buildAuthConfig,
+    createAddress,
     createOrder,
+    deleteAddress,
     getAllProducts,
+    getAddresses,
     getApiErrorMessage,
     getCartItems,
     getCurrentUserProfile,
@@ -249,5 +299,6 @@ export {
     removeProductFromCart,
     removeProductFromWishlist,
     registerUser,
+    updateAddress,
     updateCartItemQuantity,
 };

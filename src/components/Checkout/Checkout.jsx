@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { createOrder, getApiErrorMessage } from "../../ApiService/api";
+import { createOrder, getAddresses, getApiErrorMessage } from "../../ApiService/api";
 import { clearCart } from "../../cartSlice";
 import { clearOrder, setPaymentMethod } from "../../orderSlice";
 import "./Checkout.css";
@@ -13,6 +13,9 @@ const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [selectedPayment, setSelectedPayment] = useState(order.paymentMethod || null);
+    const [addresses, setAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState("");
+    const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
     const isSingleProductCheckout = Boolean(order.product);
@@ -33,6 +36,26 @@ const Checkout = () => {
         ? order.totalPrice
         : checkoutItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
+    useEffect(() => {
+        const loadAddresses = async () => {
+            try {
+                setIsLoadingAddresses(true);
+                const savedAddresses = await getAddresses();
+                setAddresses(savedAddresses);
+
+                const defaultAddress = savedAddresses.find((address) => address.isDefault);
+                setSelectedAddressId(defaultAddress?.id || savedAddresses[0]?.id || "");
+            } catch (error) {
+                const message = getApiErrorMessage(error, "Unable to load your saved addresses.");
+                toast.error(message);
+            } finally {
+                setIsLoadingAddresses(false);
+            }
+        };
+
+        loadAddresses();
+    }, []);
+
     const handlePaymentSelect = (method) => {
         setSelectedPayment(method);
         dispatch(setPaymentMethod(method));
@@ -44,11 +67,17 @@ const Checkout = () => {
             return;
         }
 
+        if (!selectedAddressId) {
+            toast.error("Please select a delivery address.");
+            return;
+        }
+
         try {
             setIsPlacingOrder(true);
 
             await createOrder({
                 paymentMethod: selectedPayment,
+                addressId: selectedAddressId,
                 items: checkoutItems.map((item) => ({
                     productId: item.productId,
                     quantity: item.quantity,
@@ -113,6 +142,68 @@ const Checkout = () => {
             </div>
 
             <div className="checkout-payment">
+                <h2>Select Delivery Address</h2>
+
+                {isLoadingAddresses ? (
+                    <div className="checkout-info-box">Loading saved addresses...</div>
+                ) : null}
+
+                {!isLoadingAddresses && addresses.length === 0 ? (
+                    <div className="checkout-info-box">
+                        <p>You do not have a saved delivery address yet.</p>
+                        <button
+                            className="manage-address-btn"
+                            onClick={() => navigate("/profile?section=address-book")}
+                        >
+                            Add Address
+                        </button>
+                    </div>
+                ) : null}
+
+                {!isLoadingAddresses && addresses.length > 0 ? (
+                    <div className="checkout-address-list">
+                        {addresses.map((address) => (
+                            <label
+                                key={address.id}
+                                className={`checkout-address-option ${selectedAddressId === address.id ? "selected" : ""}`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="delivery-address"
+                                    value={address.id}
+                                    checked={selectedAddressId === address.id}
+                                    onChange={() => setSelectedAddressId(address.id)}
+                                />
+
+                                <div className="checkout-address-content">
+                                    <div className="checkout-address-top">
+                                        <h4>{address.fullName}</h4>
+                                        {address.isDefault ? (
+                                            <span className="checkout-address-badge">Default</span>
+                                        ) : null}
+                                    </div>
+                                    <p>{address.phone}</p>
+                                    <p>
+                                        {address.line1}
+                                        {address.line2 ? `, ${address.line2}` : ""}
+                                    </p>
+                                    <p>
+                                        {address.city}, {address.state} - {address.postalCode}
+                                    </p>
+                                    <p>{address.country}</p>
+                                </div>
+                            </label>
+                        ))}
+                    </div>
+                ) : null}
+
+                <button
+                    className="manage-address-btn secondary"
+                    onClick={() => navigate("/profile?section=address-book")}
+                >
+                    Manage Addresses
+                </button>
+
                 <h2>Select Payment Method</h2>
 
                 <label className={`payment-option ${selectedPayment === "cod" ? "selected" : ""}`}>
@@ -157,7 +248,11 @@ const Checkout = () => {
                     </div>
                 </label>
 
-                <button className="place-order-btn" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
+                <button
+                    className="place-order-btn"
+                    onClick={handlePlaceOrder}
+                    disabled={isPlacingOrder || isLoadingAddresses || addresses.length === 0}
+                >
                     {isPlacingOrder ? "Placing Order..." : "Place Order"}
                 </button>
 
