@@ -70,6 +70,7 @@ ul {
   border-bottom: 1px solid #bdbdbd;
   padding: 0 8px;
   margin-left: auto;
+  background: #fff;
 }
 
 .search-box input {
@@ -78,12 +79,177 @@ ul {
   outline: none;
   background: transparent;
   font-size: 14px;
+  min-width: 0;
+}
+
+.header-search:focus-within {
+  border-bottom-color: #161616;
+}
+
+.search-submit-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #111;
+  flex-shrink: 0;
 }
 
 .search-icon {
   font-size: 28px;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.search-suggestion-popup {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 0;
+  right: 0;
+  padding: 0 24px 16px;
+  pointer-events: none;
+}
+
+.search-suggestion-panel {
+  width: min(100%, 1180px);
+  max-height: min(70vh, 520px);
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #dfdfdf;
+  border-radius: 0 0 22px 22px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.search-suggestion-panel::-webkit-scrollbar {
+  width: 10px;
+}
+
+.search-suggestion-panel::-webkit-scrollbar-track {
+  background: #f3f3f3;
+  border-radius: 999px;
+}
+
+.search-suggestion-panel::-webkit-scrollbar-thumb {
+  background: #b7b7b7;
+  border-radius: 999px;
+}
+
+.search-suggestion-section {
+  padding: 18px 20px;
+}
+
+.search-suggestion-section.with-divider {
+  border-top: 1px solid #ececec;
+}
+
+.search-suggestion-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 14px;
+}
+
+.recent-search-list,
+.search-suggestion-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-search-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #111827;
+  cursor: pointer;
+}
+
+.recent-search-button:hover {
+  color: #000;
+}
+
+.search-suggestion-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-suggestion-item:hover {
+  background: #f8fafc;
+}
+
+.search-suggestion-thumb {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.search-suggestion-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.search-suggestion-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #94a3b8;
+  font-size: 22px;
+}
+
+.search-suggestion-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-suggestion-title {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #122033;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.search-suggestion-meta {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.search-suggestion-state {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
 }
 
 .Express-delivery-container {
@@ -216,6 +382,10 @@ ul {
     padding: 0 12px;
   }
 
+  .search-suggestion-popup {
+    padding: 0 16px 16px;
+  }
+
   .express-text-1 {
     font-size: 12px;
   }
@@ -264,6 +434,35 @@ ul {
   .search-icon {
     font-size: 25px;
   }
+
+  .search-suggestion-popup {
+    padding: 0 12px 12px;
+  }
+
+  .search-suggestion-panel {
+    width: 100%;
+    max-height: min(65vh, 430px);
+    border-radius: 0 0 18px 18px;
+  }
+
+  .search-suggestion-section {
+    padding: 16px 14px;
+  }
+
+  .recent-search-button {
+    font-size: 15px;
+  }
+
+  .search-suggestion-item {
+    padding: 8px 10px;
+    gap: 12px;
+  }
+
+  .search-suggestion-thumb {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -279,6 +478,22 @@ ul {
 
   .mobile-menu-btn {
     font-size: 28px;
+  }
+
+  .search-suggestion-popup {
+    padding: 0 10px 10px;
+  }
+
+  .search-suggestion-heading {
+    margin-bottom: 12px;
+  }
+
+  .search-suggestion-title {
+    font-size: 14px;
+  }
+
+  .search-suggestion-meta {
+    font-size: 11px;
   }
 
   .mobile-menu {

@@ -1,4 +1,5 @@
 import "./HeaderTopBar.css";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { LuMapPin } from "react-icons/lu";
 import { BiMessageError } from "react-icons/bi";
@@ -6,8 +7,31 @@ import { RiAccountCircleFill } from "react-icons/ri";
 import { CiHeart } from "react-icons/ci";
 import { AiOutlineShopping } from "react-icons/ai";
 
+const buildProtectedRedirectTarget = (path) => {
+    const [pathname, search = ""] = path.split("?");
+
+    return {
+        pathname,
+        search: search ? `?${search}` : "",
+    };
+};
+
 const HeaderTopBar = () => {
     const navigate = useNavigate();
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+    const goToProtectedPath = (path) => {
+        if (isAuthenticated) {
+            navigate(path);
+            return;
+        }
+
+        navigate("/login", {
+            state: {
+                from: buildProtectedRedirectTarget(path),
+            },
+        });
+    };
 
     return (
         <>
@@ -44,17 +68,17 @@ const HeaderTopBar = () => {
                         <BiMessageError className="message-icon icon" />
                     </div>
 
-                    <div className="my-profile-container" onClick={() => navigate("/profile")}>
+                    <div className="my-profile-container" onClick={() => goToProtectedPath("/profile")}>
                         <RiAccountCircleFill className="profile-icon icon" />
                         <p className="profile-text">MY ACCOUNT</p>
                     </div>
 
                     <div className="love-cart-container">
-                        <div className="love-container" onClick={() => navigate("/profile?section=wishlist")}>
+                        <div className="love-container" onClick={() => goToProtectedPath("/profile?section=wishlist")}>
                             <CiHeart className="love-icon icon" />
                         </div>
 
-                        <div className="cart-container" onClick={() => navigate("/cart")}>
+                        <div className="cart-container" onClick={() => goToProtectedPath("/cart")}>
                             <AiOutlineShopping className="cart-icon icon" />
                         </div>
                     </div>
