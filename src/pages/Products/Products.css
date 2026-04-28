@@ -41,6 +41,34 @@
   color: inherit;
 }
 
+.product-card-image-wrap {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f7f4ef;
+}
+
+.product-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8b8b8b;
+  font-size: 14px;
+  text-align: center;
+  padding: 16px;
+}
+
 .wishlist-toggle-btn {
   width: 40px;
   height: 40px;

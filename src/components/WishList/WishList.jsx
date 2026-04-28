@@ -8,6 +8,14 @@ import {
 } from "../../ApiService/api";
 import "./WishList.css";
 
+const dispatchWishlistCountUpdate = (count) => {
+    window.dispatchEvent(
+        new CustomEvent("wishlist:updated", {
+            detail: { count },
+        }),
+    );
+};
+
 const WishList = () => {
     const [wishlistItems, setWishlistItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -21,6 +29,7 @@ const WishList = () => {
 
                 const savedWishlistItems = await getWishlistItems();
                 setWishlistItems(savedWishlistItems);
+                dispatchWishlistCountUpdate(savedWishlistItems.length);
             } catch (error) {
                 console.error("Unable to load wishlist", error);
                 setHasError(true);
@@ -37,7 +46,13 @@ const WishList = () => {
             await removeProductFromWishlist(productId);
 
             setWishlistItems((currentItems) =>
-                currentItems.filter((wishlistItem) => wishlistItem.product?.id !== productId),
+                {
+                    const nextItems = currentItems.filter(
+                        (wishlistItem) => wishlistItem.product?.id !== productId,
+                    );
+                    dispatchWishlistCountUpdate(nextItems.length);
+                    return nextItems;
+                },
             );
 
             toast.success("Product removed from wishlist.");

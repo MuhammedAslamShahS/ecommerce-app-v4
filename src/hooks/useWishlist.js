@@ -9,6 +9,14 @@ import {
     removeProductFromWishlist,
 } from "../ApiService/api";
 
+const dispatchWishlistCountUpdate = (count) => {
+    window.dispatchEvent(
+        new CustomEvent("wishlist:updated", {
+            detail: { count },
+        }),
+    );
+};
+
 const useWishlist = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -28,6 +36,7 @@ const useWishlist = () => {
                 setIsWishlistLoading(true);
                 const savedWishlistItems = await getWishlistItems();
                 setWishlistItems(savedWishlistItems);
+                dispatchWishlistCountUpdate(savedWishlistItems.length);
             } catch (error) {
                 console.error("Unable to sync wishlist", error);
             } finally {
@@ -66,9 +75,11 @@ const useWishlist = () => {
             if (alreadySaved) {
                 await removeProductFromWishlist(productId);
 
-                setWishlistItems((currentItems) =>
-                    currentItems.filter((wishlistItem) => wishlistItem.product?.id !== productId),
-                );
+                setWishlistItems((currentItems) => {
+                    const nextItems = currentItems.filter((wishlistItem) => wishlistItem.product?.id !== productId);
+                    dispatchWishlistCountUpdate(nextItems.length);
+                    return nextItems;
+                });
 
                 toast.success("Product removed from wishlist.");
                 return;
@@ -81,7 +92,9 @@ const useWishlist = () => {
                     (wishlistItem) => wishlistItem.product?.id !== newWishlistItem?.product?.id,
                 );
 
-                return [...filteredItems, newWishlistItem];
+                const nextItems = [...filteredItems, newWishlistItem];
+                dispatchWishlistCountUpdate(nextItems.length);
+                return nextItems;
             });
 
             toast.success("Product added to wishlist.");

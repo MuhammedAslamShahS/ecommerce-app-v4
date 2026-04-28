@@ -34,6 +34,8 @@
   font-size: 34px;
   line-height: 1.1;
   color: #1d2b30;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .my-account-text {
@@ -105,6 +107,8 @@
 .my-account-detail-row strong {
   color: #1d2b30;
   text-align: right;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .my-account-stats {

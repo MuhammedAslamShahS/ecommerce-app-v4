@@ -84,6 +84,19 @@ const Products = () => {
                             </div>
 
                             <Link to={`/product/${product.id}`} className="product-card-link">
+                                <div className="product-card-image-wrap">
+                                    {product.image ? (
+                                        <img
+                                            src={product.image}
+                                            alt={product.title}
+                                            className="product-card-image"
+                                        />
+                                    ) : (
+                                        <div className="product-card-image-placeholder">
+                                            <span>No image available</span>
+                                        </div>
+                                    )}
+                                </div>
                                 <h3>{product.title}</h3>
                                 <p>{product.category || "Uncategorized"}</p>
                                 <p>Rs. {Number(product.price || 0).toFixed(2)}</p>

@@ -1,11 +1,13 @@
+import { useEffect, useMemo, useState } from "react";
 import "./HeaderTopBar.css";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LuMapPin } from "react-icons/lu";
 import { BiMessageError } from "react-icons/bi";
 import { RiAccountCircleFill } from "react-icons/ri";
 import { CiHeart } from "react-icons/ci";
 import { AiOutlineShopping } from "react-icons/ai";
+import { getWishlistItems } from "../../ApiService/api";
 
 const buildProtectedRedirectTarget = (path) => {
     const [pathname, search = ""] = path.split("?");
@@ -18,7 +20,55 @@ const buildProtectedRedirectTarget = (path) => {
 
 const HeaderTopBar = () => {
     const navigate = useNavigate();
-    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const location = useLocation();
+    const authState = useSelector((state) => state.auth);
+    const cartItems = useSelector((state) => state.cart.items);
+    const isAuthenticated = authState.isAuthenticated;
+    const [wishlistCount, setWishlistCount] = useState(() => Number(authState.user?.wishlistCount || 0));
+
+    const cartCount = useMemo(() => {
+        const totalCartQuantity = cartItems.reduce((total, item) => total + Number(item.quantity || 0), 0);
+
+        if (totalCartQuantity > 0) {
+            return totalCartQuantity;
+        }
+
+        return Number(authState.user?.cartCount || 0);
+    }, [authState.user?.cartCount, cartItems]);
+
+    useEffect(() => {
+        const syncWishlistCount = async () => {
+            if (!isAuthenticated) {
+                setWishlistCount(0);
+                return;
+            }
+
+            try {
+                const wishlistItems = await getWishlistItems();
+                setWishlistCount(wishlistItems.length);
+            } catch (error) {
+                setWishlistCount(Number(authState.user?.wishlistCount || 0));
+            }
+        };
+
+        syncWishlistCount();
+    }, [authState.user?.wishlistCount, isAuthenticated, location.pathname, location.search]);
+
+    useEffect(() => {
+        const handleWishlistUpdated = (event) => {
+            const nextCount = Number(event.detail?.count);
+
+            if (Number.isFinite(nextCount)) {
+                setWishlistCount(nextCount);
+            }
+        };
+
+        window.addEventListener("wishlist:updated", handleWishlistUpdated);
+
+        return () => {
+            window.removeEventListener("wishlist:updated", handleWishlistUpdated);
+        };
+    }, []);
 
     const goToProtectedPath = (path) => {
         if (isAuthenticated) {
@@ -76,10 +126,12 @@ const HeaderTopBar = () => {
                     <div className="love-cart-container">
                         <div className="love-container" onClick={() => goToProtectedPath("/profile?section=wishlist")}>
                             <CiHeart className="love-icon icon" />
+                            {wishlistCount > 0 ? <span className="icon-count-badge">{wishlistCount}</span> : null}
                         </div>
 
                         <div className="cart-container" onClick={() => goToProtectedPath("/cart")}>
                             <AiOutlineShopping className="cart-icon icon" />
+                            {cartCount > 0 ? <span className="icon-count-badge">{cartCount}</span> : null}
                         </div>
                     </div>
                 </div>
