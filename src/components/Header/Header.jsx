@@ -254,12 +254,12 @@ const Header = () => {
                     </div>
 
                     <ul className="desktop-nav-links">
-                        <li>NEW IN</li>
-                        <li>SALES</li>
+                        <li onClick={() => navigate("/new-in")}>NEW IN</li>
+                        <li onClick={() => navigate("/sales")}>SALES</li>
                         <li onClick={() => navigate("/products/all")}>PRODUCTS</li>
-                        <li>COLLECTIONS</li>
-                        <li>WEDDING</li>
-                        <li>DEALS</li>
+                        <li onClick={() => navigate("/collections")}>COLLECTIONS</li>
+                        <li onClick={() => navigate("/wedding")}>WEDDING</li>
+                        <li onClick={() => navigate("/deals")}>DEALS</li>
                     </ul>
 
                     <form className="search-box header-search" ref={searchBoxRef} onSubmit={handleSearchSubmit}>
@@ -373,7 +373,7 @@ const Header = () => {
                             ABOUT US
                         </div>
 
-                        <div className="mobile-action-item">
+                        <div className="mobile-action-item" onClick={() => goToPath("/stores")}>
                             <LuMapPin className="mobile-action-icon" />
                             <span>STORES</span>
                         </div>
@@ -400,12 +400,12 @@ const Header = () => {
                     </div>
 
                     <ul className="mobile-nav-links">
-                        <li>NEW IN</li>
-                        <li>SALES</li>
+                        <li onClick={() => goToPath("/new-in")}>NEW IN</li>
+                        <li onClick={() => goToPath("/sales")}>SALES</li>
                         <li onClick={() => goToPath("/products/all")}>PRODUCTS</li>
-                        <li>COLLECTIONS</li>
-                        <li>WEDDING</li>
-                        <li>DEALS</li>
+                        <li onClick={() => goToPath("/collections")}>COLLECTIONS</li>
+                        <li onClick={() => goToPath("/wedding")}>WEDDING</li>
+                        <li onClick={() => goToPath("/deals")}>DEALS</li>
                     </ul>
 
                     <div className="Express-delivery-container mobile-delivery">

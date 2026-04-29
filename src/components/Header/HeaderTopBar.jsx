@@ -102,10 +102,12 @@ const HeaderTopBar = () => {
                     <div className="delivery-store-container">
                         <div className="delivery">
                             <p className="delivery-text-1">Delivering to</p>
-                            <p className="delivery-text-2">Add delivery location</p>
+                            <p className="delivery-text-2" onClick={() => navigate("/delivery-to")}>
+                                Add delivery location
+                            </p>
                         </div>
 
-                        <div className="store">
+                        <div className="store" onClick={() => navigate("/stores")}>
                             <LuMapPin className="map-icon icon" />
                             <p className="store-text">STORES</p>
                         </div>
@@ -125,13 +127,17 @@ const HeaderTopBar = () => {
 
                     <div className="love-cart-container">
                         <div className="love-container" onClick={() => goToProtectedPath("/profile?section=wishlist")}>
-                            <CiHeart className="love-icon icon" />
-                            {wishlistCount > 0 ? <span className="icon-count-badge">{wishlistCount}</span> : null}
+                            <div className="icon-badge-wrap">
+                                <CiHeart className="love-icon icon" />
+                                {wishlistCount > 0 ? <span className="icon-count-badge">{wishlistCount}</span> : null}
+                            </div>
                         </div>
 
                         <div className="cart-container" onClick={() => goToProtectedPath("/cart")}>
-                            <AiOutlineShopping className="cart-icon icon" />
-                            {cartCount > 0 ? <span className="icon-count-badge">{cartCount}</span> : null}
+                            <div className="icon-badge-wrap">
+                                <AiOutlineShopping className="cart-icon icon" />
+                                {cartCount > 0 ? <span className="icon-count-badge">{cartCount}</span> : null}
+                            </div>
                         </div>
                     </div>
                 </div>

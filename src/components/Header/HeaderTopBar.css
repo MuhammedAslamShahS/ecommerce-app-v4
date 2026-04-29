@@ -107,22 +107,27 @@
 }
 
 .love-container {
-  position: relative;
   border-right: 1px solid gray;
   padding-right: 12px;
   cursor: pointer;
 }
 
 .cart-container {
-  position: relative;
   padding-left: 8px;
   cursor: pointer;
+}
+
+.icon-badge-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .icon-count-badge {
   position: absolute;
   top: -8px;
-  right: -6px;
+  right: -8px;
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
@@ -136,10 +141,6 @@
   justify-content: center;
   line-height: 1;
   border: 2px solid rgb(42, 41, 41);
-}
-
-.cart-container .icon-count-badge {
-  right: -2px;
 }
 
 .icon {
