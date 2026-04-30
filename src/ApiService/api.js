@@ -1,11 +1,24 @@
 import axios from "axios";
+import store from "../store";
+import { logout } from "../authSlice";
+import { clearCart } from "../cartSlice";
+import { clearOrder } from "../orderSlice";
+import {
+    buildCurrentRedirectPath,
+    isAuthRoutePath,
+    markSessionExpiredNotice,
+    storePendingAuthRedirect,
+} from "../utils/authSession";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
+const SESSION_EXPIRED_MESSAGE = "Your session has expired. Please log in again.";
 
 const apiClient = axios.create({
     baseURL: apiBaseUrl,
     withCredentials: true,
 });
+
+let isHandlingSessionExpiry = false;
 
 const readStoredToken = () => {
     try {
@@ -32,6 +45,48 @@ const buildAuthConfig = () => {
 const getApiErrorMessage = (error, fallbackMessage) => {
     return error?.response?.data?.error || error?.response?.data?.message || fallbackMessage;
 };
+
+const isSessionExpiredError = (error) => {
+    return Boolean(error?.isSessionExpired);
+};
+
+const shouldHandleSessionExpiry = (error) => {
+    return error?.response?.status === 401 && Boolean(readStoredToken());
+};
+
+const handleSessionExpiry = () => {
+    if (isHandlingSessionExpiry) {
+        return;
+    }
+
+    isHandlingSessionExpiry = true;
+
+    const currentPath = buildCurrentRedirectPath();
+
+    if (!isAuthRoutePath(window.location.pathname)) {
+        storePendingAuthRedirect(currentPath);
+    }
+
+    markSessionExpiredNotice();
+    store.dispatch(clearCart());
+    store.dispatch(clearOrder());
+    store.dispatch(logout());
+
+    window.location.replace("/login");
+};
+
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (shouldHandleSessionExpiry(error)) {
+            error.isSessionExpired = true;
+            error.userMessage = SESSION_EXPIRED_MESSAGE;
+            handleSessionExpiry();
+        }
+
+        return Promise.reject(error);
+    },
+);
 
 const normalizeUser = (user) => {
     if (!user) {
@@ -303,6 +358,7 @@ export {
     getApiErrorMessage,
     getCartItems,
     getCurrentUserProfile,
+    isSessionExpiredError,
     getMyOrders,
     getProductId,
     getWishlistItems,

@@ -6,6 +6,7 @@ import {
     addProductToWishlist,
     getApiErrorMessage,
     getWishlistItems,
+    isSessionExpiredError,
     removeProductFromWishlist,
 } from "../ApiService/api";
 
@@ -99,6 +100,10 @@ const useWishlist = () => {
 
             toast.success("Product added to wishlist.");
         } catch (error) {
+            if (isSessionExpiredError(error)) {
+                return;
+            }
+
             const message = getApiErrorMessage(error, "Unable to update wishlist right now.");
             toast.error(message);
         }

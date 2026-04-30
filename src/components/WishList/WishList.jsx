@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import {
     getApiErrorMessage,
     getWishlistItems,
+    isSessionExpiredError,
     removeProductFromWishlist,
 } from "../../ApiService/api";
 import "./WishList.css";
@@ -57,6 +58,10 @@ const WishList = () => {
 
             toast.success("Product removed from wishlist.");
         } catch (error) {
+            if (isSessionExpiredError(error)) {
+                return;
+            }
+
             const message = getApiErrorMessage(error, "Unable to remove this product right now.");
             toast.error(message);
         }

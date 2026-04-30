@@ -1,29 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setCredentials } from "../../authSlice";
 import { getApiErrorMessage, registerUser } from "../../ApiService/api";
+import { consumePendingAuthRedirect, getSafeRedirectPath } from "../../utils/authSession";
 import "../Login/Login.css";
 
 const createDisplayNameFromEmail = (email) => {
     return email.split("@")[0] || "Customer";
-};
-
-const getSafeRedirectPath = (locationState) => {
-    const redirectSource = locationState?.from;
-
-    if (!redirectSource?.pathname) {
-        return "/";
-    }
-
-    const blockedRedirectPaths = new Set(["/login", "/signup", "/register", "/logout"]);
-
-    if (blockedRedirectPaths.has(redirectSource.pathname)) {
-        return "/";
-    }
-
-    return `${redirectSource.pathname}${redirectSource.search || ""}`;
 };
 
 const SignUp = () => {
@@ -39,7 +24,9 @@ const SignUp = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const redirectPath = getSafeRedirectPath(location.state);
+    const redirectPath = useMemo(() => {
+        return getSafeRedirectPath(location.state, consumePendingAuthRedirect());
+    }, [location.state]);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;

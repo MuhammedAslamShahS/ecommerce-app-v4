@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { cancelOrder, getApiErrorMessage, getMyOrders } from "../../ApiService/api";
+import { cancelOrder, getApiErrorMessage, getMyOrders, isSessionExpiredError } from "../../ApiService/api";
 import "./MyOrders.css";
 
 const MyOrders = () => {
@@ -19,6 +19,10 @@ const MyOrders = () => {
                 const savedOrders = await getMyOrders();
                 setOrders(savedOrders);
             } catch (error) {
+                if (isSessionExpiredError(error)) {
+                    return;
+                }
+
                 setHasError(true);
                 toast.error(getApiErrorMessage(error, "Unable to load your orders right now."));
             } finally {
@@ -55,6 +59,10 @@ const MyOrders = () => {
 
             toast.success("Order cancelled successfully.");
         } catch (error) {
+            if (isSessionExpiredError(error)) {
+                return;
+            }
+
             toast.error(
                 getApiErrorMessage(error, "Unable to cancel this order right now."),
             );

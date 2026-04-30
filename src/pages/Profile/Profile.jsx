@@ -5,7 +5,7 @@ import "./Profile.css";
 import ProfileHeader from "../../components/Profile/ProfileHeader";
 import ProfileSidebar from "../../components/Profile/ProfileSidebar";
 import ProfileContent from "../../components/Profile/ProfileContent";
-import { getApiErrorMessage, getCurrentUserProfile } from "../../ApiService/api";
+import { getApiErrorMessage, getCurrentUserProfile, isSessionExpiredError } from "../../ApiService/api";
 import { setCredentials } from "../../authSlice";
 
 const Profile = () => {
@@ -43,6 +43,10 @@ const Profile = () => {
           );
         }
       } catch (error) {
+        if (isSessionExpiredError(error)) {
+          return;
+        }
+
         setProfileError(
           getApiErrorMessage(error, "Unable to load your account details right now.")
         );

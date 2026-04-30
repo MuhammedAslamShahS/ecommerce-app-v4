@@ -5,6 +5,7 @@ import {
   deleteAddress,
   getAddresses,
   getApiErrorMessage,
+  isSessionExpiredError,
   updateAddress,
 } from "../../ApiService/api";
 import "./AddressBook.css";
@@ -34,6 +35,10 @@ const AddressBook = () => {
       const savedAddresses = await getAddresses();
       setAddresses(savedAddresses);
     } catch (error) {
+      if (isSessionExpiredError(error)) {
+        return;
+      }
+
       toast.error(
         getApiErrorMessage(error, "Unable to load your addresses right now.")
       );
@@ -77,6 +82,10 @@ const AddressBook = () => {
       resetForm();
       await loadAddresses();
     } catch (error) {
+      if (isSessionExpiredError(error)) {
+        return;
+      }
+
       toast.error(
         getApiErrorMessage(error, "Unable to save this address right now.")
       );
@@ -117,6 +126,10 @@ const AddressBook = () => {
 
       await loadAddresses();
     } catch (error) {
+      if (isSessionExpiredError(error)) {
+        return;
+      }
+
       toast.error(
         getApiErrorMessage(error, "Unable to delete this address right now.")
       );

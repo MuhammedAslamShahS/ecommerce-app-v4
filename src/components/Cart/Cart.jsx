@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import {
   getApiErrorMessage,
   getCartItems,
+  isSessionExpiredError,
   removeProductFromCart,
   updateCartItemQuantity,
 } from "../../ApiService/api";
@@ -27,6 +28,10 @@ const Cart = () => {
         const savedCartItems = await getCartItems();
         dispatch(setCartItems(savedCartItems));
       } catch (error) {
+        if (isSessionExpiredError(error)) {
+          return;
+        }
+
         const message = getApiErrorMessage(error, "Unable to load your cart right now.");
         toast.error(message);
       } finally {
@@ -55,6 +60,10 @@ const Cart = () => {
 
       dispatch(saveCartItem(updatedCartItem));
     } catch (error) {
+      if (isSessionExpiredError(error)) {
+        return;
+      }
+
       const message = getApiErrorMessage(
         error,
         "Unable to update this cart item right now."
@@ -85,6 +94,10 @@ const Cart = () => {
       dispatch(removeCartItem(productId));
       toast.info("Item removed from cart.");
     } catch (error) {
+      if (isSessionExpiredError(error)) {
+        return;
+      }
+
       const message = getApiErrorMessage(
         error,
         "Unable to remove this item right now."

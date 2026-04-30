@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { createOrder, getAddresses, getApiErrorMessage } from "../../ApiService/api";
+import { createOrder, getAddresses, getApiErrorMessage, isSessionExpiredError } from "../../ApiService/api";
 import { clearCart } from "../../cartSlice";
 import { clearOrder, setPaymentMethod } from "../../orderSlice";
 import "./Checkout.css";
@@ -46,6 +46,10 @@ const Checkout = () => {
                 const defaultAddress = savedAddresses.find((address) => address.isDefault);
                 setSelectedAddressId(defaultAddress?.id || savedAddresses[0]?.id || "");
             } catch (error) {
+                if (isSessionExpiredError(error)) {
+                    return;
+                }
+
                 const message = getApiErrorMessage(error, "Unable to load your saved addresses.");
                 toast.error(message);
             } finally {
@@ -92,6 +96,10 @@ const Checkout = () => {
             dispatch(clearOrder());
             navigate("/profile?section=my-orders");
         } catch (error) {
+            if (isSessionExpiredError(error)) {
+                return;
+            }
+
             const message = getApiErrorMessage(error, "Unable to complete checkout right now.");
             toast.error(message);
         } finally {
